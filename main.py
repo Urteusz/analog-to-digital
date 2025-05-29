@@ -50,11 +50,9 @@ def save_audio(filename, audio, samplerate, bit_depth):
     """Zapisuje sygnał audio do pliku WAV z określonymi parametrami"""
     try:
         if bit_depth == 8:
-            # 8-bit unsigned: przeskaluj z (-1.0, 1.0) na (0.0, 1.0)
             audio_scaled = np.clip((audio + 1.0) / 2.0, 0.0, 1.0).astype('float32')
             sf.write(filename, audio_scaled, samplerate, subtype='PCM_U8')
         elif bit_depth == 12:
-            # Symulacja 12-bit przez zapisanie jako 16-bit z ograniczoną precyzją
             audio_12bit = quantize(audio, 12)
             sf.write(filename, (audio_12bit * 32767).astype('int16'), samplerate, subtype='PCM_16')
         elif bit_depth == 16:
@@ -90,7 +88,6 @@ def save_results_report(results):
 
     with open("wyniki/sprawozdanie.txt", "w", encoding="utf-8") as f:
         f.write("SPRAWOZDANIE Z PRZETWARZANIA ANALOGOWO-CYFROWEGO (A/C)\n")
-
         f.write("WYNIKI ANALIZY:\n")
         f.write("-" * 40 + "\n")
         f.write(f"{'Częst.[Hz]':<10} {'Bit':<4} {'SNR[dB]':<8}\n")
@@ -142,8 +139,8 @@ def main():
     save_audio(original_file, high_quality_audio, orig_sr, orig_bd)
 
     # Parametry do testowania - szeroki zakres zgodnie z poleceniem
-    samplerates = [48000, 44100, 22050, 16000, 11025, 8000]  # Różne częstotliwości
-    bit_depths = [24, 16, 12, 8]  # Różne głębokości bitowe
+    samplerates = [48000, 44100, 22050, 16000, 11025, 8000]
+    bit_depths = [24, 16, 12, 8]
 
     results = []
     total_combinations = len(samplerates) * len(bit_depths)
@@ -166,16 +163,12 @@ def main():
             # Zapis do pliku
             filename = f"wyniki/audio_{sr}Hz_{bd}bit.wav"
             if save_audio(filename, audio_quantized, sr, bd):
-                # Przygotowanie sygnału referencyjnego w tej samej częstotliwości
                 reference = resample_audio(high_quality_audio, orig_sr, sr)
 
-                # Obliczenia metryk jakości
                 snr = compute_snr(reference, audio_quantized)
 
-                # Wyświetlenie wyników
                 print(f"  → SNR: {snr:.2f} dB")
 
-                # Teoretyczne SNR dla porównania
                 theoretical_snr = 6.02 * bd + 1.76 if bd <= 24 else float('inf')
                 if theoretical_snr != float('inf'):
                     print(f"  → SNR teoretyczne: {theoretical_snr:.2f} dB")
