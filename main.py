@@ -3,7 +3,6 @@ import soundfile as sf
 import numpy as np
 import os
 import scipy.signal
-from datetime import datetime
 
 
 def list_input_devices():
@@ -94,13 +93,12 @@ def save_results_report(results):
 
         f.write("WYNIKI ANALIZY:\n")
         f.write("-" * 40 + "\n")
-        f.write(f"{'Częst.[Hz]':<10} {'Bit':<4} {'SNR[dB]':<8} {'MSE':<10} {'RMSE':<10} {'Rozmiar[KB]':<12}\n")
+        f.write(f"{'Częst.[Hz]':<10} {'Bit':<4} {'SNR[dB]':<8}\n")
         f.write("-" * 40 + "\n")
 
         for result in sorted(results, key=lambda x: (x['snr']), reverse=True):
             f.write(f"{result['samplerate']:<10} {result['bit_depth']:<4} "
-                    f"{result['snr']:<8.2f} {result['mse']:<10.6f} "
-                    f"{result['rmse']:<10.6f} {result['file_size']:<12.1f}\n")
+                    f"{result['snr']:<8.2f} \n")
 
         print(f"Sprawozdanie zapisane do: wyniki/sprawozdanie.txt")
 
